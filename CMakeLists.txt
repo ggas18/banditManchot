@@ -14,3 +14,5 @@ endif(CMAKE_COMPILER_IS_GNUCC)
 file(GLOB SOURCES "src/*.c")
 
 add_executable(bandit ${SOURCES})
+
+target_link_libraries(bandit m)
