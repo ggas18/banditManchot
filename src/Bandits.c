@@ -1,8 +1,8 @@
 /*
-		bandits manchots : 
-		comparer les 3 politiques en parallele : glouton, eps-glouton et UCB... 
-	
-		
+		bandits manchots :
+		comparer les 3 politiques en parallele : glouton, eps-glouton et UCB...
+
+
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,23 +17,29 @@ typedef struct {
 	int N[K] ;		// N[i] = nombre de tirages du bras i
 	double gain; // gain accumulé depuis le début
 	int param_int ; // à tout hasard
-	double param_double; // à tout hasard 
-} Data; 
+	double param_double; // à tout hasard
+} Data;
 
 double mu[K]; // moyennes des Xi
 int tour = 0;
-	
+
+double drand48(){
+	srand(time(NULL));
+	int random_variable = rand();
+	return random_variable/ RAND_MAX;
+}
 // Fonction permettant de tirer le bras i : retourne la récompense observée x_i
 double tirerbras( int i ) {
+
 	double x = 1.0 * (drand48() <= mu[i]); // bernouilli avec moyenne mu[i]
 	return x;
 }
-	
+
 // Exemple d'une methode bidon qui tire tour à tour chaque bras
-int bidon(Data data, int t) {	
+int bidon(Data data, int t) {
 	int choix;
 	choix = (t + data.param_int) % K;
-	return choix; 
+	return choix;
 }
 
 
@@ -41,13 +47,13 @@ int bidon(Data data, int t) {
 // grâce à des connaissances que les autres méthodes n'ont pas
 int optimal(Data data) {
 	// TODO...
-	
+
 	int i,choix = 0;
 	for (i=1;i<K;i++)
 		if ( data.mu[i] > data.mu[choix] )
 			choix = i;
-		
-	return choix;	
+
+	return choix;
 
   //return 1;
 }
@@ -56,20 +62,20 @@ int optimal(Data data) {
 void miseajour(Data *data, int i, double xt) {
 	/*
 		TODO: mettre à jour les données après observé la récompense xt en tirant le bras i
-		
-		data->gain = ... 
-		data->mu = ... 
+
+		data->gain = ...
+		data->mu = ...
 		...
 	*/
 	data->gain += xt;
 	data->mu[i] = (double)(data->mu[i] * data->N[i] + xt )/ (double)(data->N[i]+1.0);
-	data->N[i] ++; 
+	data->N[i] ++;
 }
 
 
 void nonAlea(double* m){
 
-	m[0] = 0.2;	
+	m[0] = 0.2;
 	m[1] = 0.9;
 	m[2] = 0.3;
 	m[3] = 0.45;
@@ -82,7 +88,7 @@ void nonAlea(double* m){
 
 /*
 
-	m[0] = 0.2;	
+	m[0] = 0.2;
 	m[1] = 0.9;
 	m[2] = 0.3;
 	m[3] = 0.45;
@@ -98,7 +104,7 @@ void nonAlea(double* m){
 
 }
 
-void alea(double* m){ 
+void alea(double* m){
 
   int i;
   for(i=0;i<10;i++){
@@ -109,7 +115,7 @@ void alea(double* m){
 }
 
 int glouton(Data data, int t){
-  
+
   if(tour<100){
     return drand48()*9;
   }
@@ -128,82 +134,82 @@ int ucb(Data data, int tr){
 int main(void) {
 	int i;
 	srand(time(NULL));
-	
+
 	Data data_optimal;
 	data_optimal.gain = 0;
-	
+
 	Data data_gouton;
 	data_gouton.gain = 0;
-	
+
 	Data data_eps;
 	data_eps.gain = 0;
-	
+
 	Data data_ucb;
 	data_ucb.gain = 0;
-	
+
 	Data data_bidon;
 	data_bidon.gain = 0;
 	data_bidon.param_int = 2;
 
 
 
-	
-	// Initialisation des mu 
-	// ... 
+
+	// Initialisation des mu
+	// ...
 
 	nonAlea(mu);
-	
-	
+
+
 	// Début de la simulation
-		
-	int T = 10000; // temps max 
+
+	int T = 10; // temps max
 	int t = 0;
 	int choix;
 	int choixgouton;
 	int choixeps;
 	int choixucb;
-	double xt[K]; 
-	
+	double xt[K];
+
 	double regret_bidon = 0;
 	double rglouton = 0;
 	double resp = 0;
 	double rucb = 0;
-	
+
 	while ( t < T ) {
 		// tirage des K bras
 	  tour = t;
-	  
+
 		for ( i=0; i< K; i++)
 			xt[i] = tirerbras(i);
-		
+
 		// Appel de la méthode bidon
-		choix = bidon(data_bidon, t); 		
+		choix = bidon(data_bidon, t);
 		miseajour(&data_bidon, choix, xt[choix]);
-		
+
 		// TODO: autres méthodes + calcul du regret
-		
-		
+
+
 		// Appel de la méthode glouton
-		choixgouton = glouton(data_gouton, t); 		
+		choixgouton = glouton(data_gouton, t);
 		miseajour(&data_gouton, choix, xt[choix]);
-		
-		
+
+
 		// Appel de la méthode eps
-		choixeps = eps(data_eps, t); 		
+		choixeps = eps(data_eps, t);
 		miseajour(&data_eps, choix, xt[choix]);
-		
-		
+
+
 		// Appel de la méthode ucb
-		choixucb = ucb(data_ucb, t); 		
+		choixucb = ucb(data_ucb, t);
 		miseajour(&data_ucb, choix, xt[choix]);
 
 		int som = 0;
 
 		regret_bidon = regret_bidon + mu[1]-mu[choix];
 		rglouton = rglouton + mu[1]-mu[choixgouton];
-		
+
 		printf("iter #%d, regret bidon = %lf ,regret glouton = %lf \n",t,regret_bidon,rglouton);
-		t++;		
+		t++;
 	}
 
 	return 0;
