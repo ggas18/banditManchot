@@ -4,6 +4,7 @@
 
 
 */
+#define _XOPEN_SOURCE    /* ALWAYS BEFORE the include statement */
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -23,11 +24,6 @@ typedef struct {
 double mu[K]; // moyennes des Xi
 int tour = 0;
 
-double drand48(){
-	srand(time(NULL));
-	int random_variable = rand();
-	return random_variable/ RAND_MAX;
-}
 // Fonction permettant de tirer le bras i : retourne la récompense observée x_i
 double tirerbras( int i ) {
 
