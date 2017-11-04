@@ -6,8 +6,7 @@ set(PROJECT_VERSION "1.0.0")
 
 #--- Compiler options
 if(CMAKE_COMPILER_IS_GNUCC)
-#  add_definitions(-Wall -Werror -pedantic -std=c99)
-   add_definitions(-pedantic -std=c99)
+   add_definitions(-Wall -Werror -pedantic -std=c99)
 endif(CMAKE_COMPILER_IS_GNUCC)
 
 
